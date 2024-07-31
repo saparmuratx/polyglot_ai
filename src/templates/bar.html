@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Polyglot AI</title>
+</head>
+
+<body>
+    <nav class="bg-indigo-600 p-4">
+        <h1 class="text-white text-center text-2xl font-bold">Polyglot AI</h1>
+    </nav>
+
+
+    <div class="grid place-items-center h-screen ">
+        <div class="mx-auto w-full max-w-[580px]">
+
+
+            <div class="mt-4" id="progress-container">
+                <h3 id="progress-text">Translation In Progress...</h3>
+                <div>
+                    <div id="progress-bar-container"
+                        class="text-center text-sm w-full bg-gray-200 rounded-full h-4 mb-4">
+                        <div id="progress-bar" class="bg-green-500 h-4 rounded-full" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+                <button onclick="translateText()" class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md transition 
+                                        duration-200 ease-in-out hover:bg-indigo-700 hover:shadow-lg">
+                    Start Progress
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+        integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+
+    <script>
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        };
+
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        };
+
+        async function translateText() {
+
+            const stepNumbers = getRandomNumber(10, 13); // Call the getRandomNumber function
+
+
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+
+            progressBar.style.width = "0%"
+            progressText.textContent = "Translation in progress..."
+
+            document.getElementById("progress-container").style.display = "block";
+
+            let translationResult = null;
+            let progress = 0;
+
+
+            for (let i = 0; i <= stepNumbers; i++) {
+
+                const currentStep = getRandomNumber(8, 15); // Call the getRandomNumber function
+
+
+                progress += currentStep;
+
+                if (progress >= 100) {
+                    progress = 100;
+                    i = stepNumbers;
+                    progressText.textContent = "Translation in Completed"
+
+                }
+
+                console.log(currentStep); // Print the current number
+                await sleep(500); // Sleep for 50 milliseconds
+                progressBar.style.width = `${progress}%`;
+                progressBar.innerHTML = `${progress}%`;
+
+            }
+        }
+
+        async function runLoop() {
+            for (let i = 1; i <= 100; i++) {
+                console.log(i); // Print the current number
+                await sleep(50); // Sleep for 50 milliseconds
+            }
+        }
+
+
+    </script>
+
+</body>
+
+</html>

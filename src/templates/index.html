@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Polyglot AI</title>
+</head>
+
+<body>
+    <nav class="bg-indigo-600 p-4">
+        <h1 class="text-white text-center text-2xl font-bold">Polyglot AI</h1>
+    </nav>
+
+
+    <div class="grid place-items-center h-screen ">
+        <div class="mx-auto w-full max-w-[580px]">
+
+            <form class="space-y-[40px]" onsubmit="translateText(event)">
+
+                <div class="col-span-full">
+                    <label for="text" class="block text-xl font-large leading-6 text-indigo-600">Text To
+                        Translate</label>
+                    <div class="mt-2">
+                        <textarea id="text" name="about" rows="12" class="block w-full rounded-md border-1 
+                            border-gray-800 py-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 
+                            placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 
+                            sm:text-sm sm:leading-6 p-2" required>
+                        </textarea>
+                    </div>
+                </div>
+
+                <div class="col-span-full">
+                    <label for="languages" class="block text-xl font-large leading-6 text-indigo-600 mb-2"> Language
+                    </label>
+                    <input type="text" id="languages" placeholder="e.g., english, german, russian" class="block w-full
+                        rounded-md border-0 py-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300
+                        placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm
+                        sm:leading-6 placeholder: p-2" required>
+                    <small class="text-gray-500">
+                        Write the languages you want to translate your text to, separated by commas.
+                    </small>
+                </div>
+
+                <div class="flex items-center justify-center">
+                    <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md transition 
+                        duration-200 ease-in-out hover:bg-indigo-700 hover:shadow-lg">
+                        Translate
+                    </button>
+                </div>
+            </form>
+
+            <br class="mt-4">
+
+            <div class="mt-4" id="results" style="display: none;">
+                <h3>Translation Results</h3>
+                <pre id="translation-results"> </pre>
+            </div>
+
+            <div class="mt-4" id="progress-container" style="display: none;">
+                <h3 id="progress-text">Translation In Progress ...</h3>
+                <div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mb-4">
+                        <div id="progress-bar" class="bg-green-500 h-1.5 rounded-full" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label id="chekc-id" for="search-id" class="block text-xl font-large leading-6 text-indigo-600">
+                    Check Translation by ID
+                </label>
+
+                <input id="search-id" type="number" class="block w-full
+                        rounded-md border-0 py-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300
+                        focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm
+                        sm:leading-6 placeholder: p-2">
+
+                <div id="search-buttons" class="flex justify-center space-x-4 mt-2">
+                    <button id="search-button" onclick="checkTranslationStatus()" class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md transition 
+                        duration-200 ease-in-out hover:bg-indigo-700 hover:shadow-lg">
+                        Check Status
+                    </button>
+
+                    <button id="content-button" onclick="checkTranslationContent()" class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md transition 
+                        duration-200 ease-in-out hover:bg-indigo-700 hover:shadow-lg">
+                        Check Content
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4" id="results" style="display: none;">
+                <h3>Translation Status</h3>
+                <pre id="statusResults"> </pre>
+            </div>
+
+            <div class="mt-4" id="results" style="display: none;">
+                <h3>Translation Content</h3>
+                <pre id="contentResults"> </pre>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+        integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+    <script>
+
+        async function translateText(event) {
+            event.preventDefault();
+
+            // alert("Form submission prevented!");
+
+            var text = document.getElementById('text').value.trim();
+            var languages = document.getElementById('languages').value.split(',').map(lang => lang.trim());
+
+            if (!text || languages === 0 || !languages[0]) {
+                alert("Please provide both text and target languages");
+                return;
+            }
+
+            if (languages[languages.length - 1] === "") {
+                languages.pop();
+            }
+
+            console.log(text, "|", languages);
+
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+
+            progressBar.style.width = "0%"
+            progressText.textContent = "Translation in progress..."
+
+            try {
+                const response = await axios.post("localhost:8000/translate", {
+                    text: text,
+                    languages: languages
+                });
+
+                const taskId = response.data.task_id;
+
+                alert(`Task ID: ${taskId}`);
+
+                document.getElementById("progress-container").style.display = "block";
+                document.getElementById("results").style.display = "none";
+                document.getElementById("status-container").style.display = "none";
+                document.getElementById("content-container").style.display = "none";
+
+                let translationResult = null;
+                let progress = 0;
+
+                while (progress < 100) {
+                    await new Promise(resolve => setTimeout(resolve, 1000))
+                    const resultResponse = await axios.get(`localhost:8000/translate/${taskId}`);
+                    if (translationResult === "completed") {
+                        progress = 100;
+                    } else {
+                        progressBar.style.width = "50%";
+                    }
+                }
+
+                progressBar.style.width = "100%";
+                progressText.textContent = "Translation Completed!";
+
+                document.getElementById("translation-results").textContent = JSON.stringify(translationResult.translations);
+                document.getElementById("results").style.display = "block";
+
+            } catch (error) {
+                console.error("Error submitting translation", error)
+            }
+
+        };
+
+        async function checkTranslationContent() {
+            var searchId = document.getElementById('search-id').value;
+
+            console.log(searchId)
+        }
+
+        async function checkTranslationStatus() {
+            var searchId = document.getElementById('search-id').value;
+
+            console.log(searchId)
+        }
+
+
+    </script>
+
+</body>
+
+</html>
